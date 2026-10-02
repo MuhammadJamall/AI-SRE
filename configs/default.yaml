@@ -1,0 +1,89 @@
+project:
+  seed: 42
+
+data:
+  raw_dir: data/raw
+  interim_dir: data/interim
+  processed_dir: data/processed
+
+datasets:
+  smd:
+    raw_path: data/raw/ServerMachineDataset
+  hdfs:
+    raw_path: data/raw/hdfs
+    train_ratio: 0.7
+    batch_size: 200000
+logging:
+  level: INFO
+
+metrics_model:
+  machines: [machine-1-1, machine-2-1, machine-3-1]
+  window: 60
+  train_stride: 5
+  val_fraction: 0.2
+  hidden_size: 64
+  latent_size: 16
+  num_layers: 1
+  batch_size: 64
+  epochs: 30
+  lr: 0.001
+  patience: 5
+  threshold_percentile: 99.5
+  device: cpu            # cpu | mps | auto (auto = cpu)
+  model_dir: models/anomaly_metrics
+  results_dir: data/processed/anomaly_metrics
+
+logs_model:
+  models: [ngram, lstm]
+  val_fraction: 0.1
+  ngram_order: 3
+  ngram_smoothing: 0.01
+  embedding_size: 16
+  hidden_size: 64
+  num_layers: 1
+  batch_size: 256
+  samples_per_epoch: 100000
+  epochs: 20
+  lr: 0.002
+  patience: 3
+  topg: 9
+  threshold_percentile: 99.5
+  device: cpu
+  model_dir: models/anomaly_logs
+  results_dir: data/processed/anomaly_logs
+
+correlation:
+  max_gap_minutes: 5.0
+  results_dir: data/processed/correlation
+
+context_builder:
+  results_dir: data/processed/context_builder
+  max_events_in_sequence: 50
+
+llm:
+  provider: "mock"
+  model_name: "phi3"
+  base_url: "http://localhost:11434/v1"
+  api_key: ""
+  temperature: 0.1
+  results_dir: data/processed/llm_explanations
+
+remediation:
+  results_dir: data/processed/remediation
+  forbidden_keywords:
+    - "restart"
+    - "delete"
+    - "drop"
+    - "kill"
+    - "rm -rf"
+    - "reboot"
+    - "scale down"
+    - "rollback"
+  categories:
+    log_inspection: ["log", "trace", "event", "message"]
+    metric_analysis: ["metric", "cpu", "memory", "baseline", "compare"]
+    workload_check: ["workload", "process", "traffic", "request"]
+
+evaluation:
+  results_dir: data/processed/evaluation
+  max_hallucinated_entities: 0
